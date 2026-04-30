@@ -1,0 +1,40 @@
+name: Deploy Oekaki Pro Workspace
+
+# This matches the trigger requirement to run whenever code is pushed to the main branch
+on:
+  push:
+    branches: ['main']
+
+# Sets the necessary permissions for the action to write to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20' # Use a modern Node version
+
+      - name: Install Dependencies
+        run: npm install
+
+      # This bundles your modular files into the optimized format
+      - name: Build the App
+        run: npm run build 
+
+      # This targets the specific folder mentioned in your blueprint
+      - name: Upload Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './dist' 
+
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4
