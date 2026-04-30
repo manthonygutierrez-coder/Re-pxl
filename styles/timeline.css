@@ -1,0 +1,74 @@
+/* ========================================
+   TIMELINE STYLES
+   ======================================== */
+
+.timeline-footer {
+  display: flex;
+  align-items: center;
+  padding: var(--space-lg);
+  gap: var(--space-lg);
+  height: 84px;
+}
+
+#timeline {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  height: 100%;
+  align-items: center;
+  flex-grow: 1;
+  scrollbar-width: none;
+}
+
+#timeline::-webkit-scrollbar {
+  display: none;
+}
+
+/* Frame Thumbnail */
+.frame-thumb {
+  width: 52px;
+  height: 52px;
+  background: #000;
+  border: 2px solid var(--border);
+  border-radius: var(--border-radius-md);
+  cursor: pointer;
+  flex-shrink: 0;
+  position: relative;
+  transition: transform var(--transition-base),
+    border-color var(--transition-base),
+    box-shadow var(--transition-base);
+}
+
+.frame-thumb:hover {
+  transform: scale(1.05);
+  border-color: var(--accent);
+}
+
+.frame-thumb.active {
+  border-color: var(--accent);
+  box-shadow: 0 0 10px rgba(124, 77, 255, 0.3);
+}
+
+/* Timeline Footer Buttons */
+.timeline-footer button {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border);
+  border-radius: var(--border-radius-md);
+  cursor: pointer;
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-md);
+  padding: var(--space-sm) var(--space-md);
+  transition: background var(--transition-base),
+    border-color var(--transition-base),
+    transform var(--transition-fast);
+}
+
+.timeline-footer button:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--accent);
+}
+
+.timeline-footer button:active {
+  transform: scale(0.98);
+}
