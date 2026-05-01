@@ -1,266 +1,242 @@
-# Modular Refactoring Migration Guide
+# Refactoring Guide - Modular Architecture
 
 ## Overview
-This document outlines the step-by-step process to migrate from the monolithic `index.html` to a modular architecture with separated CSS, JavaScript, and HTML components.
+This guide walks you through migrating from the monolithic `index.html` to a modular, maintainable architecture that integrates your Figma design system.
+
+**Total Estimated Time:** 12-18 hours  
+**Priority:** High → Medium → Low  
+**Branch:** `figma-ui-redesign`
 
 ---
 
-## Current Progress ✅
+## Phase 2: JavaScript Extraction
 
-### Phase 1: Design System & CSS Structure
-- ✅ Created `DESIGN.md` with Figma design specifications
-- ✅ Extracted modular CSS files:
-  - `styles/design-tokens.css` - CSS variables and theme tokens
-  - `styles/base.css` - Global base styles
-  - `styles/layout.css` - Layout and positioning
-  - `styles/components.css` - UI component styles
-  - `styles/toolbar.css` - Toolbar-specific styles
-  - `styles/palette.css` - Color palette styles
-  - `styles/popovers.css` - Popover and modal styles
-  - `styles/timeline.css` - Timeline component styles
-  - `styles/tooltips.css` - Tooltip and help system styles
+### Task A: Extract Canvas Manager ⭐ PRIORITY
+**Time:** 2-3 hours | **Difficulty:** High
 
----
+**Current State:** Canvas initialization and manipulation mixed in main index.html  
+**Goal:** Separate canvas logic into dedicated module
 
-## Next Steps (TO DO)
-
-### Phase 2: HTML Structure Refactoring
-This phase requires breaking down the monolithic `index.html` into modular components:
-
-#### Step 1: Create HTML Component Files
-```
-html/
-├── header.html         # Top toolbar with brand & actions
-├── toolbar.html        # Tool selection toolbar
-├── canvas.html         # Canvas area with layer stack
-├── sidebar-left.html   # Left sidebar (tools)
-├── sidebar-right.html  # Right sidebar (palette, zoom)
-├── footer.html         # Bottom timeline & controls
-├── modals/
-│   ├── layers.html
-│   ├── export.html
-│   ├── view-settings.html
-│   └── palette-generator.html
-└── components/
-    ├── color-swatch.html
-    ├── frame-thumbnail.html
-    └── animation-preview.html
-```
-
-#### Step 2: Extract JavaScript into Modules
+**File Structure:**
 ```
 js/
-├── config.js           # Configuration constants
 ├── core/
-│   ├── canvas.js       # Canvas initialization & management
-│   ├── layers.js       # Layer system
-│   ├── animation.js    # Animation timeline
-│   └── tools.js        # Tool system
-├── ui/
-│   ├── toolbar.js      # Toolbar interactions
-│   ├── palette.js      # Color palette
-│   ├── popovers.js     # Modal/popover logic
-│   └── tooltips.js     # Tooltip system
-├── utils/
-│   ├── dom.js          # DOM manipulation utilities
-│   ├── colors.js       # Color utilities
-│   ├── history.js      # Undo/redo system
-│   └── export.js       # Export utilities
-└── app.js              # Main application entry point
+│   ├── canvas-manager.js      ← NEW
+│   ├── layer-system.js        ← NEW
+│   └── animation-engine.js    ← NEW
+└── ui/
+    └── (other UI modules)
 ```
 
-#### Step 3: Create New Modular HTML
-Create a new `index-modular.html` that:
-- Links all CSS files in `<head>`
-- Contains minimal HTML structure (just containers)
-- Links all JS modules at end of `<body>`
-- Uses semantic HTML5 elements
-
----
-
-## Detailed Implementation Tasks
-
-### Task A: Extract Canvas Code (High Priority)
-**File:** `js/core/canvas.js`
-
-Current code location in `index.html`:
-- Canvas initialization (around line 91-127)
-- Canvas rendering logic (scattered throughout)
-- Layer management (lines 115-122)
-
-**Deliverable:**
+**Template - `js/core/canvas-manager.js`:**
 ```javascript
-// js/core/canvas.js
+/**
+ * Canvas Manager
+ * Handles canvas initialization, rendering, and drawing operations
+ */
+
 export class CanvasManager {
-  constructor(containerId) {
+  constructor(containerId = 'canvas-stack') {
     this.container = document.getElementById(containerId);
-    this.canvases = {
-      onion: null,
-      bgLayers: null,
-      main: null,
-      fgLayers: null,
-      selection: null,
-      glow: null,
-      overlay: null
-    };
-    this.init();
+    this.canvases = {};
+    this.ctx = {};
+    this.initialized = false;
   }
 
-  init() {
-    // Initialize all canvases
+  /**
+   * Initialize all canvas layers
+   * @param {number} width - Canvas width
+   * @param {number} height - Canvas height
+   */
+  initialize(width = 800, height = 600) {
+    const layerIds = [
+      'onion-canvas',
+      'bg-layers-canvas',
+      'main-canvas',
+      'fg-layers-canvas',
+      'selection-canvas',
+      'glow-canvas',
+      'overlay-canvas'
+    ];
+
+    layerIds.forEach(id => {
+      const canvas = document.getElementById(id);
+      if (!canvas) {
+        throw new Error(`Canvas element not found: ${id}`);
+      }
+      this.canvases[id] = canvas;
+      this.ctx[id] = canvas.getContext('2d');
+      canvas.width = width;
+      canvas.height = height;
+    });
+
+    this.initialized = true;
+    return this;
   }
 
+  /**
+   * Get specific canvas layer
+   */
+  getCanvas(layerId) {
+    return this.canvases[layerId];
+  }
+
+  /**
+   * Get specific context
+   */
+  getContext(layerId) {
+    return this.ctx[layerId];
+  }
+
+  /**
+   * Clear all canvases
+   */
+  clearAll() {
+    Object.keys(this.ctx).forEach(id => {
+      const canvas = this.canvases[id];
+      this.ctx[id].clearRect(0, 0, canvas.width, canvas.height);
+    });
+  }
+
+  /**
+   * Resize all canvases
+   */
   resize(width, height) {
-    // Handle resizing logic
-  }
-
-  render() {
-    // Render frame
+    Object.keys(this.canvases).forEach(id => {
+      const canvas = this.canvases[id];
+      canvas.width = width;
+      canvas.height = height;
+    });
   }
 }
+
+export default CanvasManager;
 ```
 
-### Task B: Extract Tool System (High Priority)
-**File:** `js/core/tools.js`
+**Steps:**
+1. Create `js/core/` directory
+2. Extract canvas-related code from index.html into `canvas-manager.js`
+3. Export the `CanvasManager` class
+4. Add to `index.html`: `<script type="module" src="js/core/canvas-manager.js"></script>`
+5. Update initialization code to use the module
 
-Current elements scattered in index.html:
-- Tool selection logic
-- Brush implementation
-- Selection tool
-- Magic wand
-- Transform tools
-
-**Deliverable:** Create Tool class with polymorphism for each tool type.
-
-### Task C: Extract Layer System (Medium Priority)
-**File:** `js/core/layers.js`
-
-Current code:
-- Layer stack management
-- Layer visibility/locking
-- Layer reordering
-
-### Task D: Extract Animation Timeline (Medium Priority)
-**File:** `js/core/animation.js`
-
-Current code:
-- Frame management
-- Timeline UI
-- Animation playback
-
-### Task E: Extract Palette System (Medium Priority)
-**File:** `js/ui/palette.js`
-
-Current code:
-- Color selection
-- Color grid rendering
-- Active colors tracking
-
-### Task F: Extract UI/Event Handlers (Lower Priority)
-**File:** `js/ui/*.js`
-
-Current scattered event listeners and UI logic.
+**Testing Checklist:**
+- [ ] Canvas loads without errors
+- [ ] All layers render correctly
+- [ ] Drawing operations work
+- [ ] Zoom/pan functions work
 
 ---
 
-## Migration Strategy
+### Task B: Extract UI Module Manager ⭐ PRIORITY
+**Time:** 2-3 hours | **Difficulty:** High
 
-### Option 1: Gradual (Recommended)
-1. Create new `index-modular.html` with new structure
-2. Incrementally move JS code to modules
-3. Test each module as extracted
-4. Run both versions simultaneously during transition
-5. Deprecate old `index.html` once stable
+**Current State:** UI interactions scattered throughout code  
+**Goal:** Centralize UI module visibility, interactions, and state
 
-### Option 2: Complete Rewrite
-1. Create entire new modular structure from scratch
-2. Higher risk, but cleaner codebase
-3. Requires more upfront work
+**File Structure:**
+```
+js/ui/
+├── module-manager.js         ← NEW
+├── toolbar-controller.js     ← NEW
+├── palette-controller.js     ← NEW
+└── timeline-controller.js    ← NEW
+```
 
----
+**Template - `js/ui/module-manager.js`:**
+```javascript
+/**
+ * UI Module Manager
+ * Controls visibility, state, and interactions of UI modules
+ */
 
-## Testing Checklist
+export class ModuleManager {
+  constructor() {
+    this.modules = {};
+    this.activeModule = null;
+    this.isUIHidden = false;
+  }
 
-Before merging to main, verify:
+  /**
+   * Register a module
+   */
+  register(name, moduleElement) {
+    this.modules[name] = {
+      element: moduleElement,
+      visible: true,
+      state: {}
+    };
+    return this;
+  }
 
-- [ ] All canvas rendering works correctly
-- [ ] Tool selection and switching works
-- [ ] Layer creation/deletion/reordering works
-- [ ] Animation timeline functions
-- [ ] Color palette and selection works
-- [ ] All popovers/modals open/close
-- [ ] Tooltips display correctly
-- [ ] Keyboard shortcuts still work
-- [ ] Mobile responsiveness maintained
+  /**
+   * Show module
+   */
+  show(name) {
+    if (this.modules[name]) {
+      this.modules[name].element.style.opacity = '1';
+      this.modules[name].element.style.pointerEvents = 'auto';
+      this.modules[name].visible = true;
+    }
+  }
+
+  /**
+   * Hide module
+   */
+  hide(name) {
+    if (this.modules[name]) {
+      this.modules[name].element.style.opacity = '0';
+      this.modules[name].element.style.pointerEvents = 'none';
+      this.modules[name].visible = false;
+    }
+  }
+
+  /**
+   * Toggle UI visibility
+   */
+  toggleUI() {
+    this.isUIHidden = !this.isUIHidden;
+    document.body.classList.toggle('hide-ui', this.isUIHidden);
+  }
+
+  /**
+   * Get module state
+   */
+  getState(name) {
+    return this.modules[name]?.state || {};
+  }
+
+  /**
+   * Set module state
+   */
+  setState(name, state) {
+    if (this.modules[name]) {
+      this.modules[name].state = { ...this.modules[name].state, ...state };
+    }
+  }
+}
+
+export default ModuleManager;
+```
+
+**Testing Checklist:**
+- [ ] Modules show/hide correctly
+- [ ] State persists between interactions
+- [ ] UI toggle works
 - [ ] No console errors
-- [ ] Performance comparable to original
-
----
-
-## File Size & Impact
-
-**Original Structure:**
-- `index.html`: ~156KB (monolithic)
-
-**New Structure (Estimated):**
-- CSS: ~20KB (split across 9 files)
-- HTML: ~15KB (split across components)
-- JS: ~100KB (split across modules)
-- **Total**: ~135KB (better organization, similar size)
-
-**Benefits:**
-- Easier to maintain and debug
-- Better performance with code splitting
-- Easier to test individual modules
-- Clearer separation of concerns
-- Easier to implement features
-
----
-
-## Figma Integration Points
-
-During refactoring, integrate Figma design tokens:
-
-1. **Colors:** Use `design-tokens.css` color variables
-2. **Spacing:** Use `--space-*` variables consistently
-3. **Typography:** Apply `--font-*` variables
-4. **Components:** Map Figma components to HTML modules
-5. **Responsive:** Apply Figma responsive breakpoints
 
 ---
 
 ## Timeline Estimate
 
-- **Phase 2 (HTML + Core JS):** 4-6 hours
-- **Phase 3 (Feature JS):** 6-8 hours
-- **Phase 4 (Testing & Polish):** 2-4 hours
-- **Total:** 12-18 hours of development
+| Task | Time | Priority |
+|------|------|----------|
+| A: Canvas Manager | 2-3h | ⭐⭐⭐ |
+| B: UI Module Manager | 2-3h | ⭐⭐⭐ |
+| Integration & Testing | 2-3h | ⭐⭐⭐ |
+| **Total** | **6-9h** | — |
 
 ---
 
-## Notes for Implementation
-
-1. **Preserve Existing Functionality:** Don't change behavior, only structure
-2. **Use ES6 Modules:** Use `export`/`import` for module system
-3. **Maintain Canvas Performance:** Keep rendering optimized
-4. **Test Early & Often:** Test each module independently
-5. **Version Control:** Commit frequently with clear messages
-6. **Documentation:** Add JSDoc comments to functions
-
----
-
-## Quick Start for Next Developer
-
-To continue this work:
-
-1. Review `DESIGN.md` for color/spacing tokens
-2. Review all CSS files in `styles/` folder
-3. Start with `Task A: Extract Canvas Code`
-4. Create `js/core/canvas.js` following the template above
-5. Test thoroughly before moving to next task
-6. Update this document as you progress
-
----
-
-*Last Updated: 2026-04-30*
-*Status: Design System Complete - Awaiting HTML/JS Extraction*
+*Last Updated: 2026-05-01*
+*Status: Ready for JavaScript Extraction*
