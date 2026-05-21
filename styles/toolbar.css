@@ -1,0 +1,65 @@
+/* ========================================
+   TOOLBAR STYLES
+   ======================================== */
+
+#select-toolbar {
+  position: absolute;
+  top: 76px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: var(--space-sm) var(--space-md);
+  display: none;
+  align-items: center;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+  justify-content: center;
+  width: max-content;
+  max-width: 90vw;
+  background: rgba(26, 26, 32, 0.95);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--border);
+  border-radius: var(--border-radius-lg);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.tool-group {
+  display: flex;
+  gap: var(--space-sm);
+  align-items: center;
+}
+
+.tool-divider {
+  width: 1px;
+  background: var(--border);
+  height: 28px;
+}
+
+#select-toolbar .icon-btn {
+  width: 36px;
+  height: 36px;
+}
+
+/* Wand Threshold Controls */
+#wand-threshold-container {
+  display: none;
+  align-items: center;
+  gap: var(--space-sm);
+  padding-left: var(--space-sm);
+}
+
+#wand-threshold {
+  width: 70px;
+  accent-color: var(--accent);
+}
+
+/* Toolbar Button Hover States */
+#select-toolbar .icon-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--accent);
+}
+
+#select-toolbar .icon-btn.active {
+  background: var(--accent);
+  color: #ffffff;
+  border-color: var(--accent);
+}
