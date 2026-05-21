@@ -1,0 +1,13 @@
+{
+  "name": "re-pxl",
+  "version": "1.0.0",
+  "description": "Pixel-art animation-focused drawing application made with Gemini",
+  "main": "index.html",
+  "scripts": {
+    "build": "echo 'Vanilla JS app - no build needed'",
+    "dev": "npx http-server"
+  },
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  }
+}
