@@ -26,14 +26,13 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      # Build step: copy files to dist folder
+      # Build step: bundles files into dist directory
       - name: Build the App
-        run: |
-          mkdir -p dist
-          cp index.html dist/
-          cp -r styles dist/
-          cp -r js dist/
-          cp -r assets dist/ || true
+        run: npm run build
+
+      # Debug step to verify build output exists
+      - name: Check build output
+        run: ls -la dist/ || echo "ERROR: dist directory not found"
 
       # This targets the specific folder mentioned in your blueprint
       - name: Upload Artifact
@@ -43,4 +42,3 @@ jobs:
 
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v4
-
