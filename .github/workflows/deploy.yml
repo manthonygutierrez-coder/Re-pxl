@@ -26,9 +26,14 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      # This bundles your modular files into the optimized format
+      # Build step: copy files to dist folder
       - name: Build the App
-        run: npm run build 
+        run: |
+          mkdir -p dist
+          cp index.html dist/
+          cp -r styles dist/
+          cp -r js dist/
+          cp -r assets dist/ || true
 
       # This targets the specific folder mentioned in your blueprint
       - name: Upload Artifact
@@ -38,3 +43,4 @@ jobs:
 
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v4
+
