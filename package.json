@@ -4,7 +4,7 @@
   "description": "Pixel-art animation-focused drawing application made with Gemini",
   "main": "index.html",
   "scripts": {
-    "build": "echo 'Vanilla JS app - no build needed'",
+    "build": "mkdir -p dist && cp index.html dist/ && cp -r styles dist/ && cp -r js dist/ && cp -r assets dist/ 2>/dev/null || true",
     "dev": "npx http-server"
   },
   "devDependencies": {
