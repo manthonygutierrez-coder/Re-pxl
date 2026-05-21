@@ -32,7 +32,7 @@ jobs:
 
       # Debug step to verify build output exists
       - name: Check build output
-        run: ls -la dist/ || echo 'ERROR: dist directory not found'
+        run: ls -la dist/ || echo 'ERROR: ./dist directory not found'
 
       # This targets the specific folder mentioned in your blueprint
       - name: Upload Artifact
