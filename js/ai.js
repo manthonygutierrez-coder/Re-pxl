@@ -1,6 +1,8 @@
 // Re-pxl — AI Integration (Gemini API)
 // Requires: state.js, color.js, ui.js, canvas.js
 
+// RE-PXL PHASE-3 CHANGE: restored callGeminiAPI signature (was split across animation.js/ai.js)
+async function callGeminiAPI(prompt, isJson = false) {
 const url = `/.netlify/functions/gemini`;
   const payload = { prompt, isJson };
 

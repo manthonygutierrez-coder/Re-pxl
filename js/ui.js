@@ -95,7 +95,8 @@ function togglePanel(id) {
 
   document.addEventListener('click', (e) => {
 
-    if (!e.target.closest('.popover') && !e.target.closest('.icon-btn') && !e.target.closest('.palette-header') && !e.target.closest('.console-container')) {
+    // RE-PXL PHASE-3 CHANGE: also exclude .btn-icon (new button class used for panel toggles)
+    if (!e.target.closest('.popover') && !e.target.closest('.icon-btn') && !e.target.closest('.btn-icon') && !e.target.closest('.palette-header') && !e.target.closest('.console-container')) {
 
       document.querySelectorAll('.popover').forEach(p => {
 
