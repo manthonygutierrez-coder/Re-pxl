@@ -84,9 +84,35 @@
   --danger: #ff4d4d;
 }
 
+/* ========================================
+   RE-PXL DEVICE SHELL TOKENS (Figma)
+   ======================================== */
+
+:root {
+  --bg-body:             #1a1a1d;
+  --bg-device:           #2c2c34;
+  --bg-panel-outer:      #1e1e23;
+  --bg-canvas-module:    #2d3e40;
+  --bg-canvas-upper:     #5d7e3a;
+  --bg-canvas-lower:     #3a5038;
+  --bg-canvas-checker:   #4a6446;
+  --shell-orange:        #e67e22;
+  --shell-orange-border: #ba5e0c;
+  --accent-teal:         #4ecdc4;
+  --btn-dark:            #3a3a3a;
+  --text-on-dark:        #e8e8e8;
+  --text-on-teal:        #1a1a1d;
+  --font-display:        'VT323', monospace;
+  --radius-device:       10px;
+  --radius-module:       10px;
+  --border-module:       4px;
+  --device-width:        380px;
+  --gap-bento:           12px;
+}
+
 /* Default to dark theme for backwards compatibility */
 body {
-  --bg-deep: #0f0f12;
+  --bg-deep: #1a1a1d;
   --bg-panel: #1a1a20;
   --bg-hover: #2a2a35;
   --accent: #7c4dff;

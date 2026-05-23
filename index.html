@@ -2,11 +2,13 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0,
+        maximum-scale=1.0, user-scalable=no">
   <title>Re-pxl</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=VT323&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=VT323&family=Inter:wght@400;600;700&display=swap"
+        rel="stylesheet">
   <link rel="stylesheet" href="styles/design-tokens.css">
   <link rel="stylesheet" href="styles/base.css">
   <link rel="stylesheet" href="styles/layout.css">
@@ -19,521 +21,317 @@
 </head>
 <body>
 
-<!-- ICON SPRITE (injected by JS below) -->
+<!-- ── Utility (invisible) ── -->
 <div id="icon-sprite-root" style="display:none" aria-hidden="true"></div>
+<input type="color" id="hidden-color-picker"
+       style="position:absolute;opacity:0;pointer-events:none;width:0;height:0">
 
-<!-- HIDDEN UTILITY ELEMENTS -->
-<input type="color" id="hidden-color-picker" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0" tabindex="-1" aria-hidden="true">
-
-<!-- SELECT TOOLBAR — context toolbar shown when select tool is active -->
-<div id="select-toolbar" class="ui-module" role="toolbar" aria-label="Selection options">
-  <div class="tool-group">
-    <!-- Select sub-mode buttons — JS sets active class via setSelectMode() -->
-    <button class="icon-btn tip-below active" id="sel-rect"
-            data-tooltip="Rectangle Select" aria-label="Rectangle select" onclick="setSelectMode('rect')">
-      <svg width="14" height="14" style="image-rendering:pixelated"><use href="#icon-select-rect"/></svg>
-    </button>
-    <button class="icon-btn tip-below" id="sel-lasso"
-            data-tooltip="Lasso Select" aria-label="Lasso select" onclick="setSelectMode('lasso')">
-      <svg width="14" height="14" style="image-rendering:pixelated"><use href="#icon-lasso"/></svg>
-    </button>
-    <button class="icon-btn tip-below" id="sel-wand"
-            data-tooltip="Magic Wand" aria-label="Magic wand select" onclick="setSelectMode('wand')">
-      <svg width="14" height="14" style="image-rendering:pixelated"><use href="#icon-wand"/></svg>
-    </button>
-  </div>
-  <div class="tool-divider"></div>
-  <div class="tool-group">
-    <button class="icon-btn tip-below" id="btn-select-all"  data-tooltip="Select All Ctrl+A"  onclick="selectAll()">
-      <svg width="14" height="14" style="image-rendering:pixelated"><use href="#icon-select-rect"/></svg>
-    </button>
-    <button class="icon-btn tip-below" id="btn-deselect"    data-tooltip="Deselect Esc"       onclick="deselect()">✕</button>
-    <button class="icon-btn tip-below" id="btn-cut"         data-tooltip="Cut Ctrl+X"         onclick="cutSelection()">✂</button>
-    <button class="icon-btn tip-below" id="btn-copy"        data-tooltip="Copy Ctrl+C"        onclick="copySelection()">⎘</button>
-    <button class="icon-btn tip-below" id="btn-paste"       data-tooltip="Paste Ctrl+V"       onclick="pasteSelection()">⎙</button>
-    <button class="icon-btn tip-below" id="btn-delete-sel"  data-tooltip="Delete"             onclick="deleteSelection()">⌫</button>
-  </div>
-  <div class="tool-divider"></div>
-  <div class="tool-group">
-    <button class="icon-btn tip-below" id="btn-flip-h"  data-tooltip="Flip Horizontal" onclick="flipSelection('h')">
-      <svg width="14" height="14" style="image-rendering:pixelated"><use href="#icon-mirror-x"/></svg>
-    </button>
-    <button class="icon-btn tip-below" id="btn-flip-v"  data-tooltip="Flip Vertical"   onclick="flipSelection('v')">
-      <svg width="14" height="14" style="image-rendering:pixelated"><use href="#icon-mirror-x"/></svg>
-    </button>
-    <button class="icon-btn tip-below" id="btn-move-sel" data-tooltip="Move Selection">
-      <svg width="14" height="14" style="image-rendering:pixelated"><use href="#icon-move"/></svg>
-    </button>
-    <button class="icon-btn tip-below" id="btn-stamp" data-tooltip="Stamp to Clipboard" onclick="stampToClipboard()">
-      <svg width="14" height="14" style="image-rendering:pixelated"><use href="#icon-eyedropper"/></svg>
-    </button>
-  </div>
-  <div class="tool-divider" id="wand-threshold-divider" style="display:none"></div>
-  <div id="wand-threshold-container">
-    <span style="font-size:11px;color:var(--text-dim)">Threshold</span>
+<!-- ── Select toolbar (floats above device, hidden until select tool active) ── -->
+<div id="select-toolbar" class="ui-module" role="toolbar">
+  <button id="sel-rect"  class="btn-dark btn-icon" onclick="setSelectMode('rect')">
+    <svg width="16" height="16" style="image-rendering:pixelated"><use href="assets/icons-pixel.svg#icon-select-rect"/></svg>
+  </button>
+  <button id="sel-lasso" class="btn-dark btn-icon" onclick="setSelectMode('lasso')">
+    <svg width="16" height="16" style="image-rendering:pixelated"><use href="assets/icons-pixel.svg#icon-lasso"/></svg>
+  </button>
+  <button id="sel-wand"  class="btn-dark btn-icon" onclick="setSelectMode('wand')">
+    <svg width="16" height="16" style="image-rendering:pixelated"><use href="assets/icons-pixel.svg#icon-wand"/></svg>
+  </button>
+  <button id="btn-cut"        class="btn-dark btn-icon" onclick="cutSelection()">✂</button>
+  <button id="btn-copy"       class="btn-dark btn-icon" onclick="copySelection()">⎘</button>
+  <button id="btn-paste"      class="btn-dark btn-icon" onclick="pasteFromClipboard(0)">⎙</button>
+  <button id="btn-delete-sel" class="btn-dark btn-icon" onclick="deleteSelection()">✕</button>
+  <button id="btn-flip-h"     class="btn-dark btn-icon" onclick="flipSelection('h')">
+    <svg width="16" height="16" style="image-rendering:pixelated"><use href="assets/icons-pixel.svg#icon-mirror-x"/></svg>
+  </button>
+  <button id="btn-flip-v"     class="btn-dark btn-icon" onclick="flipSelection('v')">
+    <svg width="16" height="16" style="image-rendering:pixelated;transform:rotate(90deg)"><use href="assets/icons-pixel.svg#icon-mirror-x"/></svg>
+  </button>
+  <button id="btn-stamp"      class="btn-dark btn-icon" onclick="stampToClipboard()">⎗</button>
+  <div id="wand-threshold-container" style="display:none;align-items:center;gap:6px">
     <input type="range" id="wand-threshold" min="0" max="255" value="32">
-    <span id="wand-threshold-val" style="font-size:11px;color:var(--accent-teal);min-width:24px">32</span>
+    <span id="wand-threshold-val">32</span>
   </div>
-  <div class="tool-divider"></div>
-  <div class="tool-group">
-    <label style="font-size:11px;color:var(--text-dim);display:flex;align-items:center;gap:4px">
-      Angle
-      <input type="range" id="sel-angle" min="-180" max="180" value="0" style="width:60px;accent-color:var(--accent-teal)">
-    </label>
-  </div>
+  <input type="range" id="sel-angle" min="-180" max="180" value="0">
 </div>
 
-<!-- CLIPBOARD MODULE — floating bubble grid for pasted slices -->
+<!-- ── Clipboard module ── -->
 <div id="clipboard-module" class="ui-module" style="display:none">
-  <div style="font-size:10px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Clipboard</div>
-  <div class="clipboard-grid" id="clipboard-grid"></div>
+  <div id="clipboard-grid" class="clipboard-grid"></div>
 </div>
 
-<!-- APP BODY -->
+<!-- ── App body ── -->
 <div id="app-body">
   <div id="device-shell">
 
-    <!-- Corner screws -->
-    <div class="screw screw-tl" aria-hidden="true"></div>
-    <div class="screw screw-tr" aria-hidden="true"></div>
-    <div class="screw screw-bl" aria-hidden="true"></div>
-    <div class="screw screw-br" aria-hidden="true"></div>
-    <!-- Side bumpers -->
-    <div class="bumper bumper-left"  aria-hidden="true"></div>
-    <div class="bumper bumper-right" aria-hidden="true"></div>
+    <div class="screw screw-tl"></div>
+    <div class="screw screw-tr"></div>
+    <div class="screw screw-bl"></div>
+    <div class="screw screw-br"></div>
+    <div class="bumper bumper-left"></div>
+    <div class="bumper bumper-right"></div>
 
     <!-- TOOLBAR BAR -->
-    <div class="toolbar-bar" role="banner">
-      <div class="grill-lines" aria-hidden="true"><span></span><span></span><span></span></div>
+    <div class="toolbar-bar">
+      <div class="grill-lines"><span></span><span></span><span></span></div>
       <span class="device-title">RE-PXL</span>
-      <button class="btn-dark" id="btn-fullscreen"
-              style="width:28px;height:28px;font-size:10px;border-radius:4px;flex-shrink:0"
-              data-tooltip="Fullscreen" aria-label="Toggle fullscreen"
-              onclick="toggleFullscreen()">⛶</button>
+      <button id="btn-fullscreen" onclick="toggleFullScreen()">⛶</button>
     </div>
 
     <!-- DRAWING MODULE -->
-    <div class="module module-drawing" role="region" aria-label="Drawing canvas">
+    <div class="module module-drawing">
       <div class="module-header">
         <span class="module-label">DRAWING</span>
         <div style="display:flex;gap:6px;align-items:center">
           <span id="zoom-val" class="zoom-display">8×</span>
-          <!-- Active tool HUD — JS injects icon via setTool() -->
-          <div id="active-tool-hud"
-               style="width:22px;height:22px;display:flex;align-items:center;justify-content:center;
-                      color:var(--accent-teal);flex-shrink:0">
-            <div id="hud-icon" style="display:flex;align-items:center;justify-content:center"></div>
+          <div id="active-tool-hud">
+            <div id="hud-icon"></div>
           </div>
-          <button class="btn-dark btn-settings tip-below" id="btn-settings"
-                  data-tooltip="Canvas Settings" aria-label="Canvas settings">
-            <svg width="12" height="12" style="image-rendering:pixelated"><use href="#icon-settings"/></svg>
+          <button id="btn-settings" class="btn-dark btn-settings">
+            <svg width="16" height="16" style="image-rendering:pixelated"><use href="assets/icons-pixel.svg#icon-settings"/></svg>
           </button>
         </div>
       </div>
-
-      <!-- Canvas outer — id="canvas-area" is what JS uses for pointer events -->
       <div class="canvas-outer" id="canvas-area">
-
-        <!-- Zoom module — id="module-zoom-container" for JS reference -->
-        <div id="module-zoom-container"
-             style="position:absolute;top:8px;left:8px;z-index:20;display:flex;flex-direction:column;gap:4px">
-          <div class="zoom-icon-wrapper top tip-right" id="btn-zoom-in"
-               data-tooltip="Zoom In  +" role="button" tabindex="0" aria-label="Zoom in"
-               onclick="zoomIn()">
-            <svg width="14" height="14" style="image-rendering:pixelated"><use href="#icon-zoom-in"/></svg>
+        <div id="module-zoom-container">
+          <div id="btn-zoom-in"  class="zoom-icon-wrapper" onclick="adjustZoom(1)">
+            <svg width="16" height="16" style="image-rendering:pixelated"><use href="assets/icons-pixel.svg#icon-zoom-in"/></svg>
           </div>
-          <div class="zoom-icon-wrapper bottom tip-right" id="btn-zoom-out"
-               data-tooltip="Zoom Out  -" role="button" tabindex="0" aria-label="Zoom out"
-               onclick="zoomOut()">
-            <svg width="14" height="14" style="image-rendering:pixelated"><use href="#icon-zoom-out"/></svg>
+          <div id="btn-zoom-out" class="zoom-icon-wrapper" onclick="adjustZoom(-1)">
+            <svg width="16" height="16" style="image-rendering:pixelated"><use href="assets/icons-pixel.svg#icon-zoom-out"/></svg>
           </div>
         </div>
-
-        <!-- Canvas view toggles top-right -->
-        <div style="position:absolute;top:8px;right:8px;z-index:20;display:flex;gap:4px">
-          <label class="btn-dark btn-icon-xs tip-below" style="cursor:pointer"
-                 data-tooltip="Mirror X" aria-label="Mirror X axis">
-            <input type="checkbox" id="mirror-x" style="display:none">
-            <svg width="12" height="12" style="image-rendering:pixelated"><use href="#icon-mirror-x"/></svg>
-          </label>
-          <label class="btn-dark btn-icon-xs tip-below" style="cursor:pointer"
-                 data-tooltip="Mirror Y" aria-label="Mirror Y axis">
-            <input type="checkbox" id="mirror-y" style="display:none">
-            <svg width="12" height="12" style="image-rendering:pixelated"><use href="#icon-mirror-x"/></svg>
-          </label>
-        </div>
-
-        <!-- CANVAS STACK — all 7 layers, IDs and z-order unchanged -->
-        <div class="canvas-inner-border" id="canvas-stack" role="img" aria-label="Pixel art canvas">
-          <canvas id="onion-canvas"     aria-hidden="true"></canvas>
-          <canvas id="bg-layers-canvas" aria-hidden="true"></canvas>
+        <!-- mirror toggles — must be checkboxes (JS uses .onchange) -->
+        <label class="btn-dark btn-icon-xs" style="position:absolute;top:8px;right:8px;z-index:10">
+          <input type="checkbox" id="mirror-x" style="display:none">
+          <svg width="16" height="16" style="image-rendering:pixelated"><use href="assets/icons-pixel.svg#icon-mirror-x"/></svg>
+        </label>
+        <label class="btn-dark btn-icon-xs" style="position:absolute;top:8px;right:38px;z-index:10">
+          <input type="checkbox" id="mirror-y" style="display:none">
+          <svg width="16" height="16" style="image-rendering:pixelated;transform:rotate(90deg)"><use href="assets/icons-pixel.svg#icon-mirror-x"/></svg>
+        </label>
+        <!-- canvas stack — IDs and z-order are sacred -->
+        <div class="canvas-inner-border" id="canvas-stack">
+          <canvas id="onion-canvas"></canvas>
+          <canvas id="bg-layers-canvas"></canvas>
           <canvas id="main-canvas"></canvas>
-          <canvas id="fg-layers-canvas" aria-hidden="true"></canvas>
-          <canvas id="selection-canvas" aria-hidden="true"></canvas>
-          <canvas id="glow-canvas"      aria-hidden="true"></canvas>
-          <canvas id="overlay-canvas"   aria-hidden="true"></canvas>
+          <canvas id="fg-layers-canvas"></canvas>
+          <canvas id="selection-canvas"></canvas>
+          <canvas id="glow-canvas"></canvas>
+          <canvas id="overlay-canvas"></canvas>
         </div>
+      </div>
+    </div>
 
-      </div><!-- #canvas-area -->
-    </div><!-- .module-drawing -->
-
-    <!-- BENTO MID: TIME + PALETTE -->
+    <!-- BENTO MID: TIME (left) + PALETTE (right) -->
     <div class="bento-mid">
 
-      <!-- TIME MODULE -->
-      <div class="module module-time" role="region" aria-label="Animation timeline">
+      <div class="module module-time">
         <div class="module-header">
           <span class="module-label">TIME</span>
-          <svg width="8" height="8" style="image-rendering:pixelated;color:rgba(0,0,0,0.5)"><use href="#icon-fps"/></svg>
         </div>
         <div class="module-body">
-
-          <!-- Frame preview — id="anim-preview" is what JS appends canvas into -->
           <div class="frame-preview-wrap">
-            <div id="anim-preview" class="anim-preview-container"
-                 style="width:100%;height:80px"
-                 role="img" aria-label="Animation preview"></div>
+            <div id="anim-preview" class="anim-preview-container"></div>
             <div class="frame-counter">F: <span id="frame-num">01</span></div>
           </div>
-
-          <!-- Playback -->
           <div class="playback-controls">
-            <button class="btn-dark" id="btn-play"
-                    data-tooltip="Play" aria-label="Play animation" onclick="playAnim()">
-              <svg width="9" height="9" style="image-rendering:pixelated"><use href="#icon-play"/></svg>
+            <button id="btn-play"  class="btn-dark" onclick="playAnim()">
+              <svg width="16" height="16" style="image-rendering:pixelated"><use href="assets/icons-pixel.svg#icon-play"/></svg>
             </button>
-            <button class="btn-dark" id="btn-pause"
-                    data-tooltip="Pause" aria-label="Pause animation" onclick="pauseAnim()">
-              <svg width="10" height="10" style="image-rendering:pixelated"><use href="#icon-pause"/></svg>
+            <button id="btn-pause" class="btn-dark" onclick="pauseAnim()">
+              <svg width="16" height="16" style="image-rendering:pixelated"><use href="assets/icons-pixel.svg#icon-pause"/></svg>
             </button>
           </div>
-          <div id="fps-display" style="font-family:var(--font-display);font-size:10px;color:var(--accent-teal);text-align:center;line-height:1;margin-top:2px">8FPS</div>
-
-          <!-- Timeline strip — hidden; expanded via add-frame button -->
-          <div class="timeline-footer" id="timeline-footer" style="display:none">
-            <div id="timeline" role="list" aria-label="Animation frames"></div>
-            <div style="display:flex;flex-direction:column;gap:4px">
-              <button class="btn-dark btn-icon-xs" id="btn-add-frame"
-                      data-tooltip="Add Frame" aria-label="Add frame" onclick="addFrame()">
-                <svg width="10" height="10" style="image-rendering:pixelated"><use href="#icon-frame-add"/></svg>
-              </button>
-              <button class="btn-dark btn-icon-xs" id="btn-delete-frame"
-                      data-tooltip="Delete Frame" aria-label="Delete frame" onclick="deleteFrame()">✕</button>
-              <button class="btn-dark btn-icon-xs" id="btn-dupe-frame"
-                      data-tooltip="Duplicate Frame" aria-label="Duplicate frame" onclick="dupeFrame()">⎘</button>
-            </div>
+          <div id="fps-display">8FPS</div>
+          <div id="timeline-footer" style="display:none">
+            <div id="timeline"></div>
+            <button id="btn-add-frame"    onclick="addFrame()">
+              <svg width="16" height="16" style="image-rendering:pixelated"><use href="assets/icons-pixel.svg#icon-frame-add"/></svg>
+            </button>
+            <button id="btn-delete-frame" onclick="deleteCurrentFrame()">✕</button>
+            <button id="btn-dupe-frame"   onclick="dupeFrame()">⎘</button>
           </div>
-
         </div>
       </div>
 
-      <!-- PALETTE MODULE -->
-      <div class="module module-palette" role="region" aria-label="Color palette">
+      <div class="module module-palette">
         <div class="module-header">
           <span class="module-label">PALETTE</span>
-          <button class="btn-dark btn-small tip-below" id="btn-palette-preset"
-                  data-tooltip="Palette Presets" aria-label="Palette presets"
+          <button id="btn-palette-preset" class="btn-dark btn-small"
                   onclick="togglePanel('palette-popover')">PRESET</button>
         </div>
         <div class="module-body">
-
-          <!-- FG/BG color swatches -->
-          <div style="display:flex;gap:4px;padding:6px 8px 0;align-items:center">
+          <div style="display:flex;gap:4px;padding:6px 8px 0">
             <div id="fg-color-swatch"
-                 style="width:20px;height:20px;border-radius:3px;border:2px solid #111;background:#FFF1E8;cursor:pointer;flex-shrink:0"
-                 title="Foreground color" onclick="openColorPicker('fg')"></div>
+                 style="width:20px;height:20px;border-radius:3px;border:2px solid #111;background:#FFF1E8;cursor:pointer"
+                 onclick="openColorPicker('fg')"></div>
             <div id="bg-color-swatch"
-                 style="width:14px;height:14px;border-radius:2px;border:2px solid #111;background:#000;cursor:pointer;flex-shrink:0;margin-top:6px;margin-left:-8px"
-                 title="Background color" onclick="openColorPicker('bg')"></div>
+                 style="width:14px;height:14px;border-radius:2px;border:2px solid #111;background:#000;cursor:pointer;margin-top:6px;margin-left:-8px"
+                 onclick="openColorPicker('bg')"></div>
           </div>
-
-          <!-- 5-col palette grid — id="active-palette" is what JS renders swatches into -->
-          <div style="padding:4px 8px 2px">
-            <div class="scroll-indicator-btn top" id="scroll-up-btn" aria-label="Scroll up">▲</div>
-            <div class="scroll-fade top" id="scroll-fade-top"></div>
-            <div id="active-palette" class="palette-grid-5col"
-                 role="list" aria-label="Color swatches"></div>
-            <div class="scroll-fade bottom" id="scroll-fade-bottom"></div>
-            <div class="scroll-indicator-btn bottom" id="scroll-down-btn" aria-label="Scroll down">▼</div>
+          <div style="padding:4px 8px 2px;position:relative">
+            <div id="scroll-up-btn"      class="scroll-indicator-btn top">▲</div>
+            <div id="scroll-fade-top"    class="scroll-fade top"></div>
+            <div id="active-palette"     class="palette-grid-5col"></div>
+            <div id="scroll-fade-bottom" class="scroll-fade bottom"></div>
+            <div id="scroll-down-btn"    class="scroll-indicator-btn bottom">▼</div>
           </div>
-
-          <!-- IN USE active colors -->
           <div class="active-colors-module">
             <div class="active-colors-header">
               <span>IN USE</span>
-              <button class="btn-dark" id="btn-clear-active-colors"
-                      style="width:18px;height:18px;font-size:9px;padding:0"
-                      aria-label="Clear active colors">✕</button>
+              <button id="btn-clear-active-colors"
+                      style="width:18px;height:18px;font-size:9px">✕</button>
             </div>
-            <div id="active-colors-grid" class="active-colors-grid"
-                 role="list" aria-label="Recently used colors"></div>
+            <div id="active-colors-grid" class="active-colors-grid"></div>
           </div>
-
         </div>
       </div>
 
     </div><!-- .bento-mid -->
 
     <!-- TOOLS SECTION -->
-    <div class="module-tools" role="toolbar" aria-label="Drawing tools">
-
-      <!-- Row 1: history | drawing tools | panel buttons -->
+    <div class="module-tools">
       <div class="tools-row-1">
-
         <div class="tools-group-history">
-          <button class="btn-dark btn-icon tip-above" id="btn-undo"
-                  data-tooltip="Undo  Ctrl+Z" aria-label="Undo" onclick="undo()">
-            <svg width="14" height="14" style="image-rendering:pixelated"><use href="#icon-undo"/></svg>
+          <button id="btn-undo" class="btn-dark btn-icon" onclick="undo()">
+            <svg width="16" height="16" style="image-rendering:pixelated"><use href="assets/icons-pixel.svg#icon-undo"/></svg>
           </button>
-          <button class="btn-dark btn-icon tip-above" id="btn-redo"
-                  data-tooltip="Redo  Ctrl+Y" aria-label="Redo" onclick="redo()">
-            <svg width="14" height="14" style="image-rendering:pixelated"><use href="#icon-redo"/></svg>
+          <button id="btn-redo" class="btn-dark btn-icon" onclick="redo()">
+            <svg width="16" height="16" style="image-rendering:pixelated"><use href="assets/icons-pixel.svg#icon-redo"/></svg>
           </button>
         </div>
-
-        <div class="tools-divider" aria-hidden="true"></div>
-
+        <div class="tools-divider"></div>
         <div class="tools-group-main">
-
-          <!-- id="tool-draw" matches DOM.toolDraw = getElementById('tool-draw') -->
-          <button class="btn-teal btn-icon tool-btn active tip-above"
-                  id="tool-draw" data-tool="draw"
-                  data-tooltip="Pencil  P" aria-label="Pencil" aria-pressed="true"
-                  onclick="setTool('draw')">
-            <svg width="16" height="16" style="image-rendering:pixelated"><use href="#icon-pencil"/></svg>
+          <button id="tool-draw"   class="btn-teal  btn-icon tool-btn active" onclick="setTool('draw')">
+            <svg width="16" height="16" style="image-rendering:pixelated"><use href="assets/icons-pixel.svg#icon-pencil"/></svg>
           </button>
-
-          <!-- id="tool-erase" matches DOM.toolErase -->
-          <button class="btn-dark btn-icon tool-btn tip-above"
-                  id="tool-erase" data-tool="erase"
-                  data-tooltip="Eraser  E" aria-label="Eraser" aria-pressed="false"
-                  onclick="setTool('erase')">
-            <svg width="16" height="16" style="image-rendering:pixelated"><use href="#icon-eraser"/></svg>
+          <button id="tool-erase"  class="btn-dark  btn-icon tool-btn" onclick="setTool('erase')">
+            <svg width="16" height="16" style="image-rendering:pixelated"><use href="assets/icons-pixel.svg#icon-eraser"/></svg>
           </button>
-
-          <button class="btn-dark btn-icon tool-btn tip-above"
-                  id="tool-fill" data-tool="fill"
-                  data-tooltip="Fill  F" aria-label="Fill bucket" aria-pressed="false"
-                  onclick="setTool('fill')">
-            <svg width="16" height="16" style="image-rendering:pixelated"><use href="#icon-fill"/></svg>
+          <button id="tool-fill"   class="btn-dark  btn-icon tool-btn" onclick="setTool('fill')">
+            <svg width="16" height="16" style="image-rendering:pixelated"><use href="assets/icons-pixel.svg#icon-fill"/></svg>
           </button>
-
-          <button class="btn-dark btn-icon tool-btn tip-above"
-                  id="tool-select" data-tool="select"
-                  data-tooltip="Select  S" aria-label="Select" aria-pressed="false"
-                  onclick="setTool('select')">
-            <svg width="14" height="14" style="image-rendering:pixelated"><use href="#icon-select-rect"/></svg>
+          <button id="tool-select" class="btn-dark  btn-icon tool-btn" onclick="setTool('select')">
+            <svg width="16" height="16" style="image-rendering:pixelated"><use href="assets/icons-pixel.svg#icon-select-rect"/></svg>
           </button>
-
-          <button class="btn-dark btn-icon tool-btn tip-above"
-                  id="tool-pan" data-tool="pan"
-                  data-tooltip="Pan  Space" aria-label="Pan canvas" aria-pressed="false"
-                  onclick="setTool('pan')">
-            <svg width="14" height="14" style="image-rendering:pixelated"><use href="#icon-pan"/></svg>
-          </button>
-
-        </div>
-
-        <div class="tools-divider" aria-hidden="true"></div>
-
-        <!-- Panel buttons -->
-        <div style="display:flex;gap:6px;align-items:center;flex-shrink:0">
-          <button class="btn-dark btn-icon tip-above popover-trigger"
-                  id="btn-layers" data-tooltip="Layers" aria-label="Layers"
-                  onclick="togglePanel('layers-popover')">
-            <svg width="14" height="14" style="image-rendering:pixelated"><use href="#icon-layers"/></svg>
-          </button>
-          <button class="btn-dark btn-icon tip-above popover-trigger"
-                  id="btn-view" data-tooltip="View" aria-label="View"
-                  onclick="togglePanel('view-popover')">
-            <svg width="14" height="14" style="image-rendering:pixelated"><use href="#icon-view"/></svg>
-          </button>
-          <button class="btn-dark btn-icon tip-above popover-trigger"
-                  id="btn-forge" data-tooltip="Forge  Ctrl+S" aria-label="Forge"
-                  onclick="togglePanel('forge-popover')">
-            <svg width="14" height="14" style="image-rendering:pixelated"><use href="#icon-save"/></svg>
-          </button>
-          <button class="btn-dark btn-icon tip-above popover-trigger"
-                  id="btn-export" data-tooltip="Export" aria-label="Export"
-                  onclick="togglePanel('export-popover')">
-            <svg width="14" height="14" style="image-rendering:pixelated"><use href="#icon-export"/></svg>
-          </button>
-          <button class="btn-dark btn-icon tip-above"
-                  id="btn-help" data-tooltip="Help  ?" aria-label="Help"
-                  onclick="toggleHelp()">
-            <svg width="14" height="14" style="image-rendering:pixelated"><use href="#icon-help"/></svg>
+          <button id="tool-pan"    class="btn-dark  btn-icon tool-btn" onclick="setTool('pan')">
+            <svg width="16" height="16" style="image-rendering:pixelated"><use href="assets/icons-pixel.svg#icon-pan"/></svg>
           </button>
         </div>
-
-      </div><!-- .tools-row-1 -->
-
-      <!-- Row 2: mode bar -->
-      <div class="tools-row-2" role="group" aria-label="Brush modes">
-
-        <button class="btn-teal btn-mode active tip-above"
-                id="btn-mode-solid" data-mode="solid"
-                data-tooltip="Solid mode" aria-label="Solid mode" aria-pressed="true">
-          <svg class="mode-icon" width="10" height="10" style="image-rendering:pixelated"><use href="#icon-mode-solid"/></svg>
+        <div class="tools-divider"></div>
+        <div style="display:flex;gap:6px;flex-shrink:0">
+          <button id="btn-layers" class="btn-dark btn-icon" onclick="togglePanel('layers-popover')">
+            <svg width="16" height="16" style="image-rendering:pixelated"><use href="assets/icons-pixel.svg#icon-layers"/></svg>
+          </button>
+          <button id="btn-view"   class="btn-dark btn-icon" onclick="togglePanel('view-popover')">
+            <svg width="16" height="16" style="image-rendering:pixelated"><use href="assets/icons-pixel.svg#icon-view"/></svg>
+          </button>
+          <button id="btn-forge"  class="btn-dark btn-icon" onclick="togglePanel('forge-popover')">
+            <svg width="16" height="16" style="image-rendering:pixelated"><use href="assets/icons-pixel.svg#icon-save"/></svg>
+          </button>
+          <button id="btn-export" class="btn-dark btn-icon" onclick="togglePanel('export-popover')">
+            <svg width="16" height="16" style="image-rendering:pixelated"><use href="assets/icons-pixel.svg#icon-export"/></svg>
+          </button>
+          <button id="btn-help"   class="btn-dark btn-icon" onclick="toggleHelp()">
+            <svg width="16" height="16" style="image-rendering:pixelated"><use href="assets/icons-pixel.svg#icon-help"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="tools-row-2">
+        <button id="btn-mode-solid"  class="btn-teal btn-mode active">
+          <svg width="16" height="16" style="image-rendering:pixelated"><use href="assets/icons-pixel.svg#icon-mode-solid"/></svg>
           <span class="mode-label">SOLID</span>
         </button>
-
-        <button class="btn-dark btn-icon-sm tip-above"
-                id="btn-mode-circle" data-mode="circle"
-                data-tooltip="Circle brush" aria-label="Circle mode" aria-pressed="false">
-          <svg width="11" height="11" style="image-rendering:pixelated"><use href="#icon-mode-circle"/></svg>
+        <button id="btn-mode-circle" class="btn-dark btn-icon-sm">
+          <svg width="16" height="16" style="image-rendering:pixelated"><use href="assets/icons-pixel.svg#icon-mode-circle"/></svg>
         </button>
-
-        <button class="btn-dark btn-icon-sm tip-above"
-                id="tool-eyedropper" data-tool="eyedropper"
-                data-tooltip="Eyedropper  I" aria-label="Eyedropper"
-                onclick="setTool('eyedropper')">
-          <svg width="11" height="11" style="image-rendering:pixelated"><use href="#icon-eyedropper"/></svg>
+        <button id="tool-eyedropper" class="btn-dark btn-icon-sm" onclick="setTool('eyedropper')">
+          <svg width="16" height="16" style="image-rendering:pixelated"><use href="assets/icons-pixel.svg#icon-eyedropper"/></svg>
         </button>
-
-        <!-- Grid toggle — id="grid-toggle" must be checkbox for JS .onchange -->
-        <label class="btn-dark btn-icon-sm tip-above btn-grid" style="cursor:pointer"
-               data-tooltip="Toggle Grid  G" aria-label="Toggle grid">
+        <label class="btn-dark btn-icon-sm btn-grid" style="cursor:pointer">
           <input type="checkbox" id="grid-toggle" style="display:none">
-          <svg width="12" height="12" style="image-rendering:pixelated"><use href="#icon-grid"/></svg>
+          <svg width="16" height="16" style="image-rendering:pixelated"><use href="assets/icons-pixel.svg#icon-grid"/></svg>
         </label>
-
-        <!-- Onion toggle — id="onion-toggle" must be checkbox for JS .onchange -->
-        <label class="btn-dark btn-icon-sm tip-above" style="cursor:pointer;margin-left:4px"
-               data-tooltip="Onion Skin" aria-label="Onion skin">
+        <label class="btn-dark btn-icon-sm" style="cursor:pointer;margin-left:4px">
           <input type="checkbox" id="onion-toggle" style="display:none">
-          <svg width="12" height="12" style="image-rendering:pixelated"><use href="#icon-onion"/></svg>
+          <svg width="16" height="16" style="image-rendering:pixelated"><use href="assets/icons-pixel.svg#icon-onion"/></svg>
         </label>
-
-        <button class="btn-dark btn-icon-sm tip-above" style="margin-left:auto"
-                id="btn-toggle-ui"
-                data-tooltip="Hide UI  Tab" aria-label="Toggle UI visibility"
+        <button id="btn-toggle-ui" class="btn-dark btn-icon-sm" style="margin-left:auto"
                 onclick="document.body.classList.toggle('hide-ui')">◻</button>
+      </div>
+    </div>
 
-      </div><!-- .tools-row-2 -->
-
-    </div><!-- .module-tools -->
-
-    <div class="footer-grill" aria-hidden="true"><span></span><span></span><span></span></div>
+    <div class="footer-grill"><span></span><span></span><span></span></div>
 
   </div><!-- #device-shell -->
 </div><!-- #app-body -->
 
-
-<!-- ================================================================
-     POPOVERS
-================================================================ -->
-
-<!-- LAYERS -->
-<div id="layers-popover" class="popover ui-module" role="dialog" aria-label="Layers">
-  <div style="display:flex;align-items:center;justify-content:space-between">
+<!-- ── Popovers (outside #app-body so they can overlay freely) ── -->
+<div id="layers-popover" class="popover ui-module">
+  <div style="display:flex;justify-content:space-between;align-items:center">
     <h4>Layers</h4>
-    <button class="btn-dark btn-icon-xs" id="btn-add-layer"
-            data-tooltip="Add Layer" aria-label="Add layer" onclick="addLayer()">+</button>
+    <button id="btn-add-layer" onclick="addLayer()">+</button>
   </div>
-  <div id="layers-list" role="list" aria-label="Layer list"></div>
+  <div id="layers-list"></div>
 </div>
 
-<!-- VIEW -->
-<div id="view-popover" class="popover ui-module" role="dialog" aria-label="View options">
+<div id="view-popover" class="popover ui-module">
   <h4>View</h4>
-  <label>
-    <input type="checkbox" id="chk-grid"> Show pixel grid
-  </label>
-  <label>
-    <input type="checkbox" id="chk-smooth"> Smooth scroll zoom
-  </label>
 </div>
 
-<!-- FORGE -->
-<div id="forge-popover" class="popover ui-module" role="dialog" aria-label="Forge">
+<div id="forge-popover" class="popover ui-module">
   <h4>Forge</h4>
-  <div style="display:flex;flex-direction:column;gap:10px">
-    <div>
-      <label style="font-size:12px;color:var(--text-dim);margin-bottom:4px;display:block">AI Sprite Prompt</label>
-      <div style="display:flex;gap:6px">
-        <input type="text" id="forge-prompt" placeholder="a wizard casting a spell..."
-               style="flex:1" autocomplete="off">
-        <button class="btn-dark" id="btn-enhance-prompt"
-                style="width:32px;height:38px;flex-shrink:0"
-                data-tooltip="Enhance with AI" onclick="enhancePrompt()">✨</button>
-      </div>
-    </div>
-    <button class="std-btn" id="btn-save-project" onclick="saveProject()">
-      <svg width="14" height="14" style="image-rendering:pixelated"><use href="#icon-save"/></svg>
-      Save Project
-    </button>
-    <button class="std-btn" id="btn-load-project"
-            style="background:var(--bg-panel-outer)" onclick="loadProject()">
-      Load Project
-    </button>
-    <button class="std-btn" id="btn-new-canvas"
-            style="background:var(--danger)" onclick="newCanvas()">
-      New Canvas
-    </button>
+  <div style="display:flex;gap:6px">
+    <input type="text" id="forge-prompt" placeholder="a wizard casting a spell...">
+    <button id="btn-enhance-prompt" onclick="enhancePrompt()">✨</button>
   </div>
+  <button id="btn-save-project" onclick="saveProject()">Save Project</button>
+  <!-- loadProject needs a file input -->
+  <label style="cursor:pointer">
+    <span id="btn-load-project" class="std-btn" style="display:inline-flex">Load Project</span>
+    <input type="file" accept=".json" style="display:none" onchange="loadProject(event)">
+  </label>
+  <button id="btn-new-canvas" onclick="newCanvas()">New Canvas</button>
 </div>
 
-<!-- EXPORT -->
-<div id="export-popover" class="popover ui-module" role="dialog" aria-label="Export">
+<div id="export-popover" class="popover ui-module">
   <h4>Export</h4>
-  <button class="std-btn" id="btn-export-png" onclick="exportPNG()">
-    <svg width="14" height="14" style="image-rendering:pixelated"><use href="#icon-export"/></svg>
-    PNG (current frame)
-  </button>
-  <button class="std-btn" id="btn-export-gif" onclick="exportGIF()">
-    <svg width="14" height="14" style="image-rendering:pixelated"><use href="#icon-export"/></svg>
-    GIF (all frames)
-  </button>
-  <button class="std-btn" id="btn-export-sprite" onclick="exportSpriteSheet()">
-    <svg width="14" height="14" style="image-rendering:pixelated"><use href="#icon-export"/></svg>
-    Sprite Sheet
-  </button>
-  <div>
-    <label style="font-size:12px;color:var(--text-dim);margin-bottom:4px;display:block">Scale</label>
-    <div style="display:flex;gap:4px">
-      <button class="btn-dark" data-scale="1" style="flex:1;padding:6px;font-family:var(--font-display)">1×</button>
-      <button class="btn-dark" data-scale="2" style="flex:1;padding:6px;font-family:var(--font-display)">2×</button>
-      <button class="btn-dark" data-scale="4" style="flex:1;padding:6px;font-family:var(--font-display)">4×</button>
-      <button class="btn-dark" data-scale="8" style="flex:1;padding:6px;font-family:var(--font-display)">8×</button>
-    </div>
+  <button id="btn-export-png"    onclick="exportPNG()">PNG (current frame)</button>
+  <button id="btn-export-gif"    onclick="exportGIF()">GIF (all frames)</button>
+  <button id="btn-export-sprite" onclick="exportSpritesheet()">Sprite Sheet</button>
+  <div style="display:flex;gap:4px">
+    <button data-scale="1">1×</button>
+    <button data-scale="2">2×</button>
+    <button data-scale="4">4×</button>
+    <button data-scale="8">8×</button>
   </div>
 </div>
 
-<!-- PALETTE POPOVER -->
-<div id="palette-popover" class="popover ui-module" role="dialog" aria-label="Palette options">
-  <!-- Palette dropdown / strips — id referenced by JS with optional chaining -->
+<div id="palette-popover" class="popover ui-module">
   <div id="palette-dropdown" style="display:none"></div>
   <div id="palette-strips-popover" style="display:none"></div>
   <div class="right-palette">
-    <div class="palette-header" id="palette-popover-header" role="button" tabindex="0"
-         onclick="togglePaletteDropdown()">
-      <svg width="10" height="10" style="image-rendering:pixelated"><use href="#icon-palette"/></svg>
-      PAL
-    </div>
+    <div id="palette-popover-header" class="palette-header"
+         onclick="togglePaletteDropdown()">PAL</div>
     <div class="palette-scroll-container">
-      <div class="scroll-indicator-btn top"  id="pop-palette-scroll-up"  aria-label="Scroll up">▲</div>
-      <div class="scroll-fade top"    id="pop-palette-fade-top"></div>
-      <div class="palette-grid vertical" id="pop-palette-grid"
-           role="list" aria-label="Color swatches"></div>
-      <div class="scroll-fade bottom" id="pop-palette-fade-bottom"></div>
-      <div class="scroll-indicator-btn bottom" id="pop-palette-scroll-down" aria-label="Scroll down">▼</div>
+      <div id="pop-palette-scroll-up"   class="scroll-indicator-btn top">▲</div>
+      <div id="pop-palette-fade-top"    class="scroll-fade top"></div>
+      <div id="pop-palette-grid"        class="palette-grid vertical"></div>
+      <div id="pop-palette-fade-bottom" class="scroll-fade bottom"></div>
+      <div id="pop-palette-scroll-down" class="scroll-indicator-btn bottom">▼</div>
     </div>
-    <!-- AI palette LCD console — id="palette-console" for JS, class for CSS -->
     <div class="console-container">
-      <div class="console-bezel" id="palette-console"
-           role="button" tabindex="0" aria-label="AI palette prompt"
+      <div id="palette-console" class="console-bezel"
            onclick="expandConsole(event)">
-        <span class="console-label"
-              style="font-size:9px;color:#00ff41;font-family:'Courier New',monospace">AI PAL</span>
+        <span class="console-label">AI PAL</span>
         <div class="lcd-screen">
           <div class="lcd-text">&gt; ENTER PALETTE:</div>
           <div style="display:flex;align-items:center">
             <input type="text" id="ai-palette-prompt"
                    placeholder="RETRO SUNSET..."
-                   autocomplete="off" spellcheck="false"
-                   aria-label="AI palette prompt input"
                    onkeydown="if(event.key==='Enter') generateAIPalette()">
-            <span class="blinking-cursor" aria-hidden="true"></span>
+            <span class="blinking-cursor"></span>
           </div>
         </div>
       </div>
@@ -541,56 +339,108 @@
   </div>
 </div>
 
-
-<!-- ================================================================
-     HELP SYSTEM
-================================================================ -->
-<div class="help-backdrop" id="help-backdrop" role="dialog" aria-label="Help" aria-modal="true"
+<!-- ── Help backdrop + bubbles ── -->
+<div id="help-backdrop" class="help-backdrop"
      onclick="if(event.target===this) toggleHelp()">
-  <div class="help-bubble" id="hb-toolbar"    style="top:90px;left:50%;--tx:-50%;--hc:#e67e22;--tc:#000">TOOLBAR<br>RE-PXL header</div>
-  <div class="help-bubble" id="hb-drawing"    style="top:160px;left:50%;--tx:-50%;--hc:#4ecdc4;--tc:#000">DRAWING<br>Your pixel canvas</div>
-  <div class="help-bubble" id="hb-time"       style="top:58%;left:72px;--hc:#e74c3c;--tc:#fff">TIME<br>Frames &amp; playback</div>
-  <div class="help-bubble" id="hb-palette"    style="top:58%;right:72px;--hc:#2ecc71;--tc:#000">PALETTE<br>Colors &amp; swatches</div>
-  <div class="help-bubble" id="hb-tools"      style="bottom:130px;left:50%;--tx:-50%;--hc:#f39c12;--tc:#000">TOOLS<br>Draw · Erase · Fill · Select</div>
-  <div class="help-bubble" id="hb-modebar"    style="bottom:76px;left:50%;--tx:-50%;--hc:#9b59b6;--tc:#fff">MODE BAR<br>Solid · Circle · Eyedrop · Grid</div>
-  <div class="help-center-modal" id="help-center-modal" style="display:none"></div>
+  <div id="hb-toolbar" class="help-bubble"
+       style="top:90px;left:50%;transform:translateX(-50%);--hc:#e67e22;--tc:#000">TOOLBAR</div>
+  <div id="hb-drawing" class="help-bubble"
+       style="top:160px;left:50%;transform:translateX(-50%);--hc:#4ecdc4;--tc:#000">DRAWING CANVAS</div>
+  <div id="hb-time"    class="help-bubble"
+       style="top:58%;left:72px;--hc:#e74c3c;--tc:#fff">TIME MODULE</div>
+  <div id="hb-palette" class="help-bubble"
+       style="top:58%;right:72px;--hc:#2ecc71;--tc:#000">PALETTE</div>
+  <div id="hb-tools"   class="help-bubble"
+       style="bottom:130px;left:50%;transform:translateX(-50%);--hc:#f39c12;--tc:#000">TOOLS</div>
 </div>
 
-
-<!-- ================================================================
-     CUSTOM MODAL — id="custom-modal" for JS showModal/closeModal
-================================================================ -->
-<div class="modal-overlay" id="custom-modal" role="dialog" aria-modal="true" aria-label="Dialog"
+<!-- ── Custom modal ── -->
+<div id="custom-modal" class="modal-overlay"
      onclick="if(event.target===this) closeModal()">
   <div class="modal">
-    <h2 id="modal-title" style="font-family:var(--font-display);font-size:20px;letter-spacing:1px;
-                                 text-transform:uppercase;margin:0 0 8px;color:var(--text-on-dark)"></h2>
-    <p  id="modal-desc"  style="color:var(--text-dim);font-size:14px;line-height:1.5;margin:0 0 12px"></p>
-    <textarea id="modal-textarea"
-              style="display:none;width:100%;height:120px;background:rgba(0,0,0,.4);
-                     color:var(--accent-teal);border:1px solid rgba(255,255,255,.1);
-                     border-radius:4px;padding:10px;font-family:'Courier New',monospace;
-                     font-size:11px;resize:none;margin-bottom:12px;outline:none"
-              readonly></textarea>
-    <div id="modal-actions" style="display:flex;justify-content:flex-end;gap:10px">
-      <button class="btn-dark" id="modal-copy-btn"
-              style="display:none;padding:8px 16px;font-family:var(--font-display)"
-              onclick="copyModalContent()">Copy</button>
-      <button class="std-btn" onclick="closeModal()"
-              style="padding:8px 16px">Close</button>
+    <h2 id="modal-title"></h2>
+    <p  id="modal-desc"></p>
+    <textarea id="modal-textarea" style="display:none" readonly></textarea>
+    <div id="modal-actions">
+      <button id="modal-copy-btn" style="display:none" onclick="copyModalContent()">Copy</button>
+      <button onclick="closeModal()">Close</button>
     </div>
   </div>
 </div>
 
+<!-- ── Shims for UI functions not yet in modules ── -->
+<script>
+  function playAnim()  { if (typeof startPlayback === 'function') startPlayback(); }
+  function pauseAnim() {
+    if (typeof playbackRafId !== 'undefined' && playbackRafId) {
+      cancelAnimationFrame(playbackRafId);
+      playbackRafId = null;
+    }
+  }
+  function dupeFrame() { if (typeof addFrame === 'function') addFrame(); }
+  function newCanvas() {
+    if (!confirm('Clear canvas and start fresh?')) return;
+    State.frames = [{ layers: [{ name: 'Layer 1', data: new ImageData(State.res, State.res), visible: true }] }];
+    State.currentFrame = 0; State.currentLayer = 0;
+    State.selectedLayers = new Set([0]);
+    if (typeof loadFrame === 'function') loadFrame(0);
+    if (typeof resizeCanvas === 'function') resizeCanvas();
+  }
+  function exportPNG() {
+    const c = document.createElement('canvas');
+    c.width = State.res; c.height = State.res;
+    c.getContext('2d').putImageData(getCompositedFrame(State.currentFrame), 0, 0);
+    const a = document.createElement('a');
+    a.download = 're-pxl.png'; a.href = c.toDataURL(); a.click();
+    if (typeof togglePanel === 'function') togglePanel('export-popover');
+  }
+  function exportGIF() { if (typeof exportSpritesheet === 'function') exportSpritesheet(); }
+  function openColorPicker(target) {
+    const picker = document.getElementById('hidden-color-picker');
+    const isFg = target === 'fg';
+    const current = isFg ? State.activeColor : (State.bgColor || '#000000');
+    picker.value = (current && current.length === 7) ? current : '#000000';
+    picker.oninput = (e) => {
+      if (isFg) {
+        State.activeColor = e.target.value;
+        document.getElementById('fg-color-swatch').style.background = e.target.value;
+        if (typeof Palettes !== 'undefined') Palettes.render();
+      } else {
+        State.bgColor = e.target.value;
+        document.getElementById('bg-color-swatch').style.background = e.target.value;
+      }
+    };
+    picker.click();
+  }
+  function flipSelection(dir) {
+    if (!State.selection.active) return;
+    if (dir === 'h') State.selection.flipH = !State.selection.flipH;
+    else             State.selection.flipV = !State.selection.flipV;
+    if (typeof updateSelectionCanvas === 'function') updateSelectionCanvas();
+    if (typeof drawGrid === 'function') drawGrid();
+  }
+  function deleteSelection() {
+    State.selection.active = false; State.selection.isDrawing = false;
+    if (typeof drawGrid === 'function') drawGrid();
+  }
+  function stampToClipboard() {
+    if (typeof addToClipboard === 'function') {
+      const flat = getCompositedFrame(State.currentFrame);
+      addToClipboard(flat, State.res, State.res);
+    }
+  }
+</script>
+
+<!-- ── Script load order is strict ── -->
 <script src="js/state.js"></script>
 <script src="js/webgl.js"></script>
 <script src="js/history.js"></script>
 <script src="js/canvas.js"></script>
-<script src="js/color.js"></script>
 <script src="js/layers.js"></script>
+<script src="js/color.js"></script>
 <script src="js/drawing.js"></script>
-<script src="js/ui.js"></script>
 <script src="js/animation.js"></script>
+<script src="js/ui.js"></script>
 <script src="js/export.js"></script>
 <script src="js/ai.js"></script>
 <script src="js/input.js"></script>

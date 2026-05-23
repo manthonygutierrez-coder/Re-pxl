@@ -250,4 +250,4 @@ function updateOnionSkin() {
   }
 
 
-  async function callGeminiAPI(prompt, isJson = false) {
+  // RE-PXL PHASE-3 CHANGE: removed dangling callGeminiAPI signature (body lives in ai.js)
